@@ -15,43 +15,33 @@ module.exports = (resolve, rootDir, isEjecting) => {
   // Use this instead of `paths.testsSetup` to avoid putting
   // an absolute filename into configuration after ejecting.
   const setupTestsFile = fs.existsSync(paths.testsSetup)
-    ? '<rootDir>/src/setupTests.js'
+    ? '<rootDir>/tests/setup.ts'
     : undefined;
 
   // TODO: I don't know if it's safe or not to just use / as path separator
   // in Jest configs. We need help from somebody with Windows to determine this.
   const config = {
-    collectCoverageFrom: ['src/**/*.{js,jsx,mjs}'],
+    collectCoverageFrom: ['src/**/*.{ts,tsx}'],
     setupFiles: [resolve('config/polyfills.js')],
     setupTestFrameworkScriptFile: setupTestsFile,
     testMatch: [
-      '<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}',
-      '<rootDir>/src/**/?(*.)(spec|test).{js,jsx,mjs}',
+      '<rootDir>/src/**/__tests__/**/*.{ts,tsx}',
+      '<rootDir>/src/**/?(*.)(spec|test).{ts,tsx}',
     ],
     testEnvironment: 'node',
     testURL: 'http://localhost',
     transform: {
-      '^.+\\.(js|jsx|mjs)$': isEjecting
+      '^.+\\.(ts|tsx)$': isEjecting
         ? '<rootDir>/node_modules/babel-jest'
         : resolve('config/jest/babelTransform.js'),
       '^.+\\.css$': resolve('config/jest/cssTransform.js'),
-      '^(?!.*\\.(js|jsx|mjs|css|json)$)': resolve(
-        'config/jest/fileTransform.js'
-      ),
+      '^(?!.*\\.(ts|tsx|css|json)$)': resolve('config/jest/fileTransform.js'),
     },
-    transformIgnorePatterns: ['[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$'],
+    transformIgnorePatterns: ['[/\\\\]node_modules[/\\\\].+\\.(ts|tsx)$'],
     moduleNameMapper: {
       '^react-native$': 'react-native-web',
     },
-    moduleFileExtensions: [
-      'web.js',
-      'mjs',
-      'js',
-      'json',
-      'web.jsx',
-      'jsx',
-      'node',
-    ],
+    moduleFileExtensions: ['web.ts', 'ts', 'json', 'web.tsx', 'tsx'],
   };
   if (rootDir) {
     config.rootDir = rootDir;
@@ -85,7 +75,7 @@ module.exports = (resolve, rootDir, isEjecting) => {
               .join('\n') +
             '\n\nIf you wish to override other Jest options, you need to ' +
             'eject from the default setup. You can do so by running ' +
-            chalk.bold('npm run eject') +
+            chalk.bold('yarn eject') +
             ' but remember that this is a one-way operation. ' +
             'You may also file an issue with Create React App to discuss ' +
             'supporting more options out of the box.\n'

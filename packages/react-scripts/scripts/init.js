@@ -1,10 +1,4 @@
 // @remove-file-on-eject
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
 'use strict';
 
 // Makes the script crash on unhandled rejections instead of silently
@@ -30,7 +24,6 @@ module.exports = function(
     .name;
   const ownPath = path.join(appPath, 'node_modules', ownPackageName);
   const appPackage = require(path.join(appPath, 'package.json'));
-  const useYarn = fs.existsSync(path.join(appPath, 'yarn.lock'));
 
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
@@ -41,6 +34,7 @@ module.exports = function(
     build: 'react-scripts build',
     test: 'react-scripts test --env=jsdom',
     eject: 'react-scripts eject',
+    lint: 'react-scripts lint',
   };
 
   fs.writeFileSync(
@@ -89,17 +83,8 @@ module.exports = function(
     }
   );
 
-  let command;
-  let args;
-
-  if (useYarn) {
-    command = 'yarnpkg';
-    args = ['add'];
-  } else {
-    command = 'npm';
-    args = ['install', '--save', verbose && '--verbose'].filter(e => e);
-  }
-  args.push('react', 'react-dom');
+  const command = 'yarnpkg';
+  const args = ['add', 'react', 'react-dom'];
 
   // Install additional template dependencies, if present
   const templateDependenciesPath = path.join(
@@ -116,20 +101,6 @@ module.exports = function(
     fs.unlinkSync(templateDependenciesPath);
   }
 
-  // Install react and react-dom for backward compatibility with old CRA cli
-  // which doesn't install react and react-dom along with react-scripts
-  // or template is presetend (via --internal-testing-template)
-  if (!isReactInstalled(appPackage) || template) {
-    console.log(`Installing react and react-dom using ${command}...`);
-    console.log();
-
-    const proc = spawn.sync(command, args, { stdio: 'inherit' });
-    if (proc.status !== 0) {
-      console.error(`\`${command} ${args.join(' ')}\` failed`);
-      return;
-    }
-  }
-
   // Display the most elegant way to cd.
   // This needs to handle an undefined originalDirectory for
   // backward compatibility with old global-cli's.
@@ -140,27 +111,23 @@ module.exports = function(
     cdpath = appPath;
   }
 
-  // Change displayed command to yarn instead of yarnpkg
-  const displayedCommand = useYarn ? 'yarn' : 'npm';
-
   console.log();
   console.log(`Success! Created ${appName} at ${appPath}`);
   console.log('Inside that directory, you can run several commands:');
   console.log();
-  console.log(chalk.cyan(`  ${displayedCommand} start`));
+  console.log(chalk.cyan(`  yarn start`));
   console.log('    Starts the development server.');
   console.log();
-  console.log(
-    chalk.cyan(`  ${displayedCommand} ${useYarn ? '' : 'run '}build`)
-  );
+  console.log(chalk.cyan(`  yarn build`));
   console.log('    Bundles the app into static files for production.');
   console.log();
-  console.log(chalk.cyan(`  ${displayedCommand} test`));
+  console.log(chalk.cyan(`  yarn lint`));
+  console.log('    Starts the linter.');
+  console.log();
+  console.log(chalk.cyan(`  yarn test`));
   console.log('    Starts the test runner.');
   console.log();
-  console.log(
-    chalk.cyan(`  ${displayedCommand} ${useYarn ? '' : 'run '}eject`)
-  );
+  console.log(chalk.cyan(`  yarn eject`));
   console.log(
     '    Removes this tool and copies build dependencies, configuration files'
   );
@@ -171,7 +138,7 @@ module.exports = function(
   console.log('We suggest that you begin by typing:');
   console.log();
   console.log(chalk.cyan('  cd'), cdpath);
-  console.log(`  ${chalk.cyan(`${displayedCommand} start`)}`);
+  console.log(`  ${chalk.cyan(`yarn start`)}`);
   if (readmeExists) {
     console.log();
     console.log(
@@ -183,12 +150,3 @@ module.exports = function(
   console.log();
   console.log('Happy hacking!');
 };
-
-function isReactInstalled(appPackage) {
-  const dependencies = appPackage.dependencies || {};
-
-  return (
-    typeof dependencies.react !== 'undefined' &&
-    typeof dependencies['react-dom'] !== 'undefined'
-  );
-}
