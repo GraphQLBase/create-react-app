@@ -11,7 +11,6 @@ process.on('unhandledRejection', err => {
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
-const spawn = require('react-dev-utils/crossSpawn');
 
 module.exports = function(
   appPath,
@@ -35,6 +34,13 @@ module.exports = function(
     test: 'react-scripts test --env=jsdom',
     eject: 'react-scripts eject',
     lint: 'react-scripts lint',
+  };
+
+  appPackage.husky = appPackage.husky || {
+    "hooks": {
+      "pre-commit": "yarn lint",
+      "pre-push": "yarn lint",
+    }
   };
 
   fs.writeFileSync(
@@ -83,21 +89,12 @@ module.exports = function(
     }
   );
 
-  const command = 'yarnpkg';
-  const args = ['add', 'react', 'react-dom'];
-
   // Install additional template dependencies, if present
   const templateDependenciesPath = path.join(
     appPath,
     '.template.dependencies.json'
   );
   if (fs.existsSync(templateDependenciesPath)) {
-    const templateDependencies = require(templateDependenciesPath).dependencies;
-    args = args.concat(
-      Object.keys(templateDependencies).map(key => {
-        return `${key}@${templateDependencies[key]}`;
-      })
-    );
     fs.unlinkSync(templateDependenciesPath);
   }
 

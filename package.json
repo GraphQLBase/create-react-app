@@ -19,20 +19,10 @@
   },
   "devDependencies": {
     "eslint": "^4.4.1",
-    "husky": "^0.13.2",
     "lerna": "2.6.0",
     "lerna-changelog": "^0.6.0",
-    "lint-staged": "^3.3.1",
     "prettier": "1.6.1",
     "svg-term-cli": "^2.0.3"
   },
-  "lint-staged": {
-    "*.js": [
-      "prettier --trailing-comma es5 --single-quote --write",
-      "git add"
-    ],
-    "yarn.lock": [
-      "git rm --cached"
-    ]
-  }
+  "dependencies": {}
 }
