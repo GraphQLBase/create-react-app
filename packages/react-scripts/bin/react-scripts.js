@@ -2,7 +2,7 @@
 
 'use strict';
 
-const spawn = require('react-dev-utils/crossSpawn');
+const spawn = require('../scripts/utils/crossSpawn');
 const args = process.argv.slice(2);
 
 const scriptIndex = args.findIndex(
